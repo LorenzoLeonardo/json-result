@@ -2,6 +2,13 @@
 name = "json-result"
 version = "0.1.0"
 edition = "2024"
+authors = ["Lorenzo Leonardo <enzotechcomputersolutions@gmail.com>"]
+description = "A generic enum representing a JSON result that can either be a success (`Ok`) with a value of type `T` or an error (`Err`) with a value of type `E`."
+license = "MIT"
+repository = "https://github.com/LorenzoLeonardo/json-result"
+homepage = "https://github.com/LorenzoLeonardo/json-result"
+documentation = "https://docs.rs/json-result"
+readme = "README.md"
 
 [dependencies]
 serde = { version = "1.0", features = ["derive"] }
