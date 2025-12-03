@@ -27,7 +27,7 @@ where
     ///
     /// ```
     /// # use serde_json::json;
-    /// # use your_crate::JsonResult;
+    /// # use json_result::JsonResult;
     /// let res: JsonResult<i32, String> = JsonResult::Ok(42);
     /// let json_value: serde_json::Value = res.into();
     /// assert_eq!(json_value, json!(42));
@@ -60,7 +60,7 @@ where
     ///
     /// ```
     /// # use serde_json::json;
-    /// # use your_crate::JsonResult;
+    /// # use json_result::JsonResult;
     /// let json_val = json!(42);
     /// let res: JsonResult<i32, String> = json_val.try_into().unwrap();
     /// match res {
