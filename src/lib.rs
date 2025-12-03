@@ -88,6 +88,9 @@ where
     }
 }
 
+pub use serde;
+pub use serde_json;
+
 #[cfg(test)]
 mod tests {
     use super::*;
