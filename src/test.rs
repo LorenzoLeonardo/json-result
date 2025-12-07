@@ -1,6 +1,6 @@
 #[cfg(test)]
 mod tests {
-    use crate::JsonResult;
+    use crate::r#enum::JsonResult;
     use serde::{Deserialize, Serialize};
 
     #[derive(Debug, Serialize, Deserialize, PartialEq)]
