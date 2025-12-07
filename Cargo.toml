@@ -1,6 +1,6 @@
 [package]
 name = "json-result"
-version = "0.1.0"
+version = "0.1.1"
 edition = "2024"
 authors = ["Lorenzo Leonardo <enzotechcomputersolutions@gmail.com>"]
 description = "A generic enum representing a JSON result that can either be a success (`Ok`) with a value of type `T` or an error (`Err`) with a value of type `E`."
