@@ -88,6 +88,15 @@ where
     }
 }
 
+impl<T, E> From<Result<T, E>> for JsonResult<T, E> {
+    fn from(r: Result<T, E>) -> Self {
+        match r {
+            Ok(v) => JsonResult::Ok(v),
+            Err(e) => JsonResult::Err(e),
+        }
+    }
+}
+
 #[cfg(test)]
 mod tests {
     use crate::r#enum::JsonResult;
@@ -300,5 +309,58 @@ mod tests {
         let err_str = result.unwrap_err().to_string();
         assert!(err_str.contains("ComplexType"));
         assert!(err_str.contains("Failed to parse"));
+    }
+
+    #[derive(Debug, Serialize, Deserialize, PartialEq)]
+    struct OKData {
+        value: i32,
+    }
+
+    #[derive(Debug, Serialize, Deserialize, PartialEq)]
+    struct ErrData {
+        message: String,
+    }
+
+    #[test]
+    fn test_from_result_ok() {
+        let r: Result<OKData, ErrData> = Ok(OKData { value: 123 });
+
+        let jr: JsonResult<OKData, ErrData> = JsonResult::from(r);
+
+        match jr {
+            JsonResult::Ok(ok) => assert_eq!(ok.value, 123),
+            _ => panic!("Expected JsonResult::Ok"),
+        }
+    }
+
+    #[test]
+    fn test_from_result_err() {
+        let r: Result<OKData, ErrData> = Err(ErrData {
+            message: "boom".into(),
+        });
+
+        let jr: JsonResult<OKData, ErrData> = JsonResult::from(r);
+
+        match jr {
+            JsonResult::Err(e) => assert_eq!(e.message, "boom"),
+            _ => panic!("Expected JsonResult::Err"),
+        }
+    }
+
+    #[test]
+    fn test_from_result_type_check() {
+        // Just ensures this compiles & converts correctly
+        let res: Result<i32, &str> = Ok(10);
+        let jr: JsonResult<i32, &str> = res.into();
+
+        assert!(matches!(jr, JsonResult::Ok(10)));
+    }
+
+    #[test]
+    fn test_from_result_error_type_check() {
+        let res: Result<i32, &str> = Err("wrong");
+        let jr: JsonResult<i32, &str> = res.into();
+
+        assert!(matches!(jr, JsonResult::Err("wrong")));
     }
 }

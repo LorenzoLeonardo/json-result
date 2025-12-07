@@ -110,6 +110,12 @@ impl<T, E> DerefMut for JsonResult<T, E> {
     }
 }
 
+impl<T, E> From<Result<T, E>> for JsonResult<T, E> {
+    fn from(r: Result<T, E>) -> Self {
+        JsonResult(r)
+    }
+}
+
 #[cfg(test)]
 mod tests {
     use std::ops::DerefMut;
@@ -302,5 +308,75 @@ mod tests {
 
         // JsonResult derefs to Result
         assert_eq!(take_result(&jr), 55);
+    }
+
+    #[derive(Debug, PartialEq)]
+    struct OKData(i32);
+
+    #[derive(Debug, PartialEq)]
+    struct ErrData(&'static str);
+
+    #[test]
+    fn from_result_ok() {
+        let r: Result<OKData, ErrData> = Ok(OKData(99));
+
+        let jr: JsonResult<OKData, ErrData> = r.into();
+
+        assert!(jr.0.is_ok());
+        assert_eq!(jr.0.unwrap(), OKData(99));
+    }
+
+    #[test]
+    fn from_result_err() {
+        let r: Result<OKData, ErrData> = Err(ErrData("error"));
+
+        let jr: JsonResult<OKData, ErrData> = r.into();
+
+        assert!(jr.0.is_err());
+        assert_eq!(jr.0.unwrap_err(), ErrData("error"));
+    }
+
+    #[test]
+    fn from_result_type_inference_ok() {
+        let r = Ok::<i32, &str>(123);
+        let jr: JsonResult<i32, &str> = r.into();
+
+        assert_eq!(jr.0.unwrap(), 123);
+    }
+
+    #[test]
+    fn from_result_type_inference_err() {
+        let r = Err::<i32, &str>("bad");
+        let jr: JsonResult<i32, &str> = r.into();
+
+        assert_eq!(jr.0.unwrap_err(), "bad");
+    }
+
+    #[test]
+    fn from_result_does_not_clone() {
+        // Ensure we are not accidentally cloning
+        // (this test checks pointer identity)
+        let msg = String::from("boom");
+        let ptr = msg.as_ptr();
+
+        let r: Result<(), String> = Err(msg);
+        let jr: JsonResult<(), String> = r.into();
+
+        let inner = jr.0.unwrap_err();
+        assert_eq!(inner.as_ptr(), ptr); // SAME pointer = no clone
+    }
+
+    #[test]
+    fn from_result_owned_types() {
+        let r: Result<String, String> = Ok("hello".to_string());
+        let jr: JsonResult<String, String> = r.into();
+        assert_eq!(jr.0.unwrap(), "hello");
+    }
+
+    #[test]
+    fn from_result_reference_error() {
+        let r: Result<i32, &str> = Err("fail");
+        let jr: JsonResult<i32, &str> = r.into();
+        assert_eq!(jr.0.unwrap_err(), "fail");
     }
 }
